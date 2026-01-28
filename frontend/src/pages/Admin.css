@@ -42,7 +42,7 @@
   font-size: 14px;
   font-family: "Manrope", system-ui, sans-serif;
   box-sizing: border-box;
-  color: #000;
+  color: #000 !important;
 }
 
 .form-group input:focus {
@@ -129,8 +129,13 @@
   font-size: 14px;
   font-family: "Manrope", system-ui, sans-serif;
   box-sizing: border-box;
-  color: #000;
-  background: white;
+  color: #000 !important;
+  background: white !important;
+}
+
+.admin-form input::placeholder,
+.admin-form textarea::placeholder {
+  color: #333;
 }
 
 .admin-form textarea {

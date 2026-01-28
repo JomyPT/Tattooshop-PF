@@ -1,4 +1,5 @@
 import { useState } from "react";
+import LoadingSpinner from "../components/LoadingSpinner";
 import "./Booking.css";
 import { studioInfo } from "../config/studioConfig";
 
@@ -19,13 +20,82 @@ export default function Booking() {
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState({});
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
+
+  // Validação em tempo real
+  function validateField(name, value) {
+    const errors = { ...fieldErrors };
+    
+    switch (name) {
+      case "nome":
+        if (!value.trim()) {
+          errors.nome = "Nome é obrigatório";
+        } else if (value.trim().length < 3) {
+          errors.nome = "Nome deve ter pelo menos 3 caracteres";
+        } else {
+          delete errors.nome;
+        }
+        break;
+      case "email":
+        if (!value.trim()) {
+          errors.email = "Email é obrigatório";
+        } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) {
+          errors.email = "Email inválido";
+        } else {
+          delete errors.email;
+        }
+        break;
+      case "telefone":
+        if (value.trim()) {
+          const telefoneDigits = value.replace(/\D/g, '');
+          if (telefoneDigits.length !== 9) {
+            errors.telefone = "Telefone deve ter 9 dígitos";
+          } else {
+            delete errors.telefone;
+          }
+        } else {
+          delete errors.telefone;
+        }
+        break;
+      case "data":
+        if (!value) {
+          errors.data = "Data é obrigatória";
+        } else {
+          const hoje = new Date();
+          hoje.setHours(0, 0, 0, 0);
+          const dataSelecionada = new Date(value + 'T00:00:00');
+          if (dataSelecionada < hoje) {
+            errors.data = "Data deve ser hoje ou no futuro";
+          } else {
+            delete errors.data;
+          }
+        }
+        break;
+      case "localizacao":
+        if (!value.trim()) {
+          errors.localizacao = "Localização é obrigatória";
+        } else if (value.trim().length < 3) {
+          errors.localizacao = "Localização muito curta";
+        } else {
+          delete errors.localizacao;
+        }
+        break;
+      default:
+        break;
+    }
+    
+    setFieldErrors(errors);
+  }
 
   function handleChange(e) {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
     if (error) setError("");
+    
+    // Validação em tempo real
+    validateField(name, value);
     
     // Auto-resize textarea
     if (e.target.tagName === 'TEXTAREA') {
@@ -155,6 +225,8 @@ export default function Booking() {
 
   return (
     <section className="booking">
+      {loading && <LoadingSpinner message="Enviando agendamento..." />}
+      
       {success && (
         <div className="popup-overlay" role="dialog" aria-modal="true" aria-label="Agendamento enviado">
           <div className="popup">
@@ -191,7 +263,7 @@ export default function Booking() {
           </div>
 
           <form onSubmit={handleSubmit} className="booking-form">
-            {error && <div className="error-message">✗ {error}</div>}
+            {error && <div className="error-message error-critical">✗ {error}</div>}
 
             <div className="form-row">
               <div className="form-group">
@@ -202,7 +274,9 @@ export default function Booking() {
                   placeholder="João Silva"
                   value={form.nome}
                   onChange={handleChange}
+                  className={fieldErrors.nome ? "error" : ""}
                 />
+                {fieldErrors.nome && <span className="field-error">{fieldErrors.nome}</span>}
               </div>
               <div className="form-group">
                 <label>Telefone</label>
@@ -212,7 +286,9 @@ export default function Booking() {
                   placeholder="(+351) 912 345 678"
                   value={form.telefone}
                   onChange={handleChange}
+                  className={fieldErrors.telefone ? "error" : ""}
                 />
+                {fieldErrors.telefone && <span className="field-error">{fieldErrors.telefone}</span>}
               </div>
             </div>
 
@@ -225,7 +301,9 @@ export default function Booking() {
                   placeholder="seu@email.com"
                   value={form.email}
                   onChange={handleChange}
+                  className={fieldErrors.email ? "error" : ""}
                 />
+                {fieldErrors.email && <span className="field-error">{fieldErrors.email}</span>}
               </div>
               <div className="form-group">
                 <label>Data Desejada *</label>
@@ -234,7 +312,9 @@ export default function Booking() {
                   name="data"
                   value={form.data}
                   onChange={handleChange}
+                  className={fieldErrors.data ? "error" : ""}
                 />
+                {fieldErrors.data && <span className="field-error">{fieldErrors.data}</span>}
               </div>
             </div>
 
@@ -271,7 +351,9 @@ export default function Booking() {
                   placeholder="ex: Braço, Costas, Perna"
                   value={form.localizacao}
                   onChange={handleChange}
+                  className={fieldErrors.localizacao ? "error" : ""}
                 />
+                {fieldErrors.localizacao && <span className="field-error">{fieldErrors.localizacao}</span>}
               </div>
               <div className="form-group">
                 <label>Tamanho Aproximado</label>
@@ -309,12 +391,14 @@ export default function Booking() {
                 />
                 <label htmlFor="file-upload" className="file-upload-label">
                   <span className="upload-icon">📷</span>
-                  <span className="upload-text">
-                    {files.length > 0 
-                      ? `${files.length} imagem(ns) selecionada(s)` 
-                      : "Clique ou arraste imagens aqui"}
-                  </span>
-                  <span className="upload-hint">Máximo 5 imagens (JPG, JPEG, PNG)</span>
+                  <div className="upload-content">
+                    <span className="upload-text">
+                      {files.length > 0 
+                        ? `${files.length} imagem(ns) selecionada(s)` 
+                        : "Clique ou arraste imagens aqui"}
+                    </span>
+                    <span className="upload-hint">Máximo 5 imagens (JPG, JPEG, PNG)</span>
+                  </div>
                 </label>
               </div>
               

@@ -10,7 +10,9 @@ function Admin() {
 
   // Estados para artistas
   const [artists, setArtists] = useState([
-    { id: 1, name: 'Sérgio Vilares', bio: 'Especialista em tatuagens vintage e tradicionais', image: '' }
+    { id: 1, name: 'Sérgio Vilares', bio: 'Especialista em tatuagens tradicionais com mais de 15 anos de experiência.', image: '/portfolio/sergio-vilares/profile.jpg' },
+    { id: 2, name: 'Renato', bio: 'Focado em realismo e trabalhos em preto e cinza.', image: '/portfolio/renato/profile.jpg' },
+    { id: 3, name: 'Beatriz', bio: 'Especializada em tatuagens delicadas e traços finos.', image: '/portfolio/beatriz/profile.jpg' }
   ]);
   const [newArtist, setNewArtist] = useState({ name: '', bio: '', image: '' });
   const [editingArtist, setEditingArtist] = useState(null);
@@ -56,8 +58,11 @@ function Admin() {
 
   const handleUpdateArtist = (e) => {
     e.preventDefault();
-    setArtists(artists.map(a => a.id === editingArtist.id ? editingArtist : a));
-    setEditingArtist(null);
+    if (editingArtist.name && editingArtist.bio) {
+      setArtists(artists.map(a => a.id === editingArtist.id ? editingArtist : a));
+      setEditingArtist(null);
+      setNewArtist({ name: '', bio: '', image: '' });
+    }
   };
 
   const handleDeleteArtist = (id) => {
@@ -77,8 +82,11 @@ function Admin() {
 
   const handleUpdatePortfolio = (e) => {
     e.preventDefault();
-    setPortfolios(portfolios.map(p => p.id === editingPortfolio.id ? editingPortfolio : p));
-    setEditingPortfolio(null);
+    if (editingPortfolio.artistId && editingPortfolio.title) {
+      setPortfolios(portfolios.map(p => p.id === editingPortfolio.id ? editingPortfolio : p));
+      setEditingPortfolio(null);
+      setNewPortfolio({ artistId: '', title: '', description: '' });
+    }
   };
 
   const handleDeletePortfolio = (id) => {
@@ -98,8 +106,11 @@ function Admin() {
 
   const handleUpdateTattoo = (e) => {
     e.preventDefault();
-    setTattoos(tattoos.map(t => t.id === editingTattoo.id ? editingTattoo : t));
-    setEditingTattoo(null);
+    if (editingTattoo.portfolioId && editingTattoo.title && editingTattoo.image) {
+      setTattoos(tattoos.map(t => t.id === editingTattoo.id ? editingTattoo : t));
+      setEditingTattoo(null);
+      setNewTattoo({ portfolioId: '', title: '', image: '', description: '' });
+    }
   };
 
   const handleDeleteTattoo = (id) => {

@@ -200,6 +200,71 @@
   color: #e5b76f;
 }
 
+/* Field Error Styles */
+.form-group input.error,
+.form-group textarea.error,
+.form-group select.error {
+  border-color: #ff4757 !important;
+  background: rgba(255, 71, 87, 0.1) !important;
+}
+
+.form-group input.error:focus,
+.form-group textarea.error:focus,
+.form-group select.error:focus {
+  box-shadow: 0 0 20px rgba(255, 71, 87, 0.4) !important;
+}
+
+.field-error {
+  color: #ff4757;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-top: 5px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  animation: slideDown 0.3s ease;
+}
+
+.field-error::before {
+  content: "⚠";
+  font-size: 1rem;
+}
+
+/* Error Message */
+.error-message {
+  padding: 15px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  animation: slideDown 0.3s ease;
+}
+
+.error-message {
+  background: rgba(255, 71, 87, 0.15);
+  color: #ff4757;
+  border: 2px solid #ff4757;
+}
+
+.error-message.error-critical {
+  background: linear-gradient(135deg, rgba(255, 71, 87, 0.2) 0%, rgba(255, 107, 107, 0.1) 100%);
+  border: 2px solid #ff4757;
+  box-shadow: 0 4px 15px rgba(255, 71, 87, 0.3);
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .form-group select option {
   background: #1a1a1a;
   color: white;
@@ -345,11 +410,16 @@ textarea {
   margin-bottom: 10px;
 }
 
+.upload-content {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .upload-text {
   font-size: 1.1rem;
   color: #c59d5f;
   font-weight: 600;
-  margin-bottom: 8px;
 }
 
 .upload-hint {
