@@ -1,0 +1,149 @@
+.works-section {
+  padding: 100px 80px;
+  background: linear-gradient(135deg, #0b0b0b 0%, #1a1a1a 100%);
+  color: white;
+  min-height: 100vh;
+}
+
+.works-container {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.works-section h2 {
+  font-size: 3rem;
+  text-align: center;
+  margin-bottom: 10px;
+  color: #c59d5f;
+  font-weight: 700;
+}
+
+.works-subtitle {
+  text-align: center;
+  font-size: 1.1rem;
+  color: #ccc;
+  margin-bottom: 60px;
+}
+
+.works-gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 30px;
+  margin-bottom: 40px;
+}
+
+.work-card {
+  background: #1a1a1a;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 2px solid #333;
+  transition: transform 0.3s, border-color 0.3s, box-shadow 0.3s;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  cursor: pointer;
+}
+
+.work-card:hover {
+  transform: translateY(-10px);
+  border-color: #c59d5f;
+  box-shadow: 0 10px 30px rgba(197, 157, 95, 0.3);
+}
+
+.work-image {
+  width: 100%;
+  height: 350px;
+  overflow: hidden;
+  background: #0f0f0f;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.work-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.work-card:hover .work-image img {
+  transform: scale(1.05);
+}
+
+.work-info {
+  padding: 15px 20px;
+  background: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.work-artist {
+  font-size: 1rem;
+  color: #c59d5f;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+@media (max-width: 1024px) {
+  .works-section {
+    padding: 80px 40px;
+  }
+
+  .works-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+  }
+
+  .work-image {
+    height: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .works-section {
+    padding: 60px 20px;
+  }
+
+  .works-section h2 {
+    font-size: 2rem;
+  }
+
+  .works-gallery {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 15px;
+  }
+
+  .work-image {
+    height: 220px;
+  }
+
+  .work-artist {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .works-section {
+    padding: 40px 15px;
+  }
+
+  .works-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .works-subtitle {
+    font-size: 1rem;
+  }
+
+  .works-gallery {
+    grid-template-columns: 1fr;
+  }
+
+  .work-image {
+    height: 280px;
+  }
+}

@@ -1,0 +1,72 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  height: 70px;
+  background: rgba(0, 0, 0, 1);
+  backdrop-filter: blur(6px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 60px;
+  z-index: 1000;
+}
+
+.logo {
+  font-size: 20px;
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.logo span {
+  color: #c59d5f;
+}
+
+.navbar nav a {
+  margin: 0 20px;
+  text-decoration: none;
+  color: #ccc;
+  font-size: 14px;
+  position: relative;
+}
+
+.navbar nav a::after {
+  content: "";
+  position: absolute;
+  bottom: -6px;
+  left: 0;
+  width: 0%;
+  height: 2px;
+  background: #c59d5f;
+  transition: 0.3s;
+}
+
+.navbar nav a:hover::after {
+  width: 100%;
+}
+
+.btn-agendar {
+  background: #c59d5f;
+  border: 2px solid #c59d5f;
+  padding: 12px 28px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 700;
+  text-decoration: none;
+  color: #1a1a1a;
+  display: inline-block;
+  transition: all 0.3s ease;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  font-size: 12px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+
+.btn-agendar:hover {
+  background: #d4b078;
+  border-color: #d4b078;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(197, 157, 95, 0.4);
+}

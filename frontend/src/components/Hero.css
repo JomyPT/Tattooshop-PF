@@ -1,0 +1,180 @@
+.hero {
+  min-height: 100vh;
+  position: relative;
+  overflow: visible;
+  background-image: url('/src/assets/tattoo-hero.jpg');
+  background-position: center center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-attachment: fixed;
+  background-color: #000;
+  margin-top: 70px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.content { position: relative; z-index: 3; }
+
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.75) 0%, rgba(0, 0, 0, 0.4) 50%, rgba(0, 0, 0, 0.6) 100%);
+  z-index: 1;
+}
+
+/* Transparent columns; dark gaps showing through */
+.columns-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.3);
+  
+  mask-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 150px,
+    black 150px,
+    black 170px
+  );
+  
+  -webkit-mask-image: repeating-linear-gradient(
+    to right,
+    transparent 0,
+    transparent 150px,
+    black 150px,
+    black 170px
+  );
+  
+  mask-size: 100% 100%;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.content {
+  position: relative;
+  height: 100%;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-left: 80px;
+  z-index: 3;
+}
+
+.content h1 {
+  font-size: 68px;
+  margin-bottom: 25px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: transparent;
+  -webkit-text-stroke: 2px #f5f5f5;
+  text-stroke: 2px #f5f5f5;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+  line-height: 1.1;
+}
+
+.content p {
+  max-width: 550px;
+  color: #d4d4d4;
+  margin-bottom: 35px;
+  font-size: 17px;
+  line-height: 1.7;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+  text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+}
+
+.content button {
+  width: fit-content;
+  padding: 14px 28px;
+  border-radius: 30px;
+  border: none;
+  background: #c59d5f;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.actions { display: flex; gap: 18px; }
+
+/* Button styles */
+.btn { 
+  display: inline-block; 
+  padding: 14px 32px; 
+  border-radius: 4px;
+  font-weight: 700; 
+  text-decoration: none;
+  font-family: 'Arial', 'Helvetica', sans-serif;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-size: 13px;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+}
+.btn-primary { 
+  background: #c59d5f; 
+  color: #1a1a1a;
+  border: 2px solid #c59d5f;
+}
+.btn-primary:hover { 
+  background: #d4b078;
+  border-color: #d4b078;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(197, 157, 95, 0.4);
+}
+.btn-secondary { 
+  background: transparent; 
+  color: #f5f5f5; 
+  border: 2px solid #c59d5f;
+}
+.btn-secondary:hover { 
+  background: rgba(197, 157, 95, 0.15);
+  border-color: #d4b078;
+  color: #fff;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(197, 157, 95, 0.3);
+}
+
+/* Responsiveness */
+@media (max-width: 1024px) {
+  .columns-overlay {
+    mask-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 120px,
+      black 120px,
+      black 140px
+    );
+    -webkit-mask-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 120px,
+      black 120px,
+      black 140px
+    );
+  }
+  .content h1 { font-size: 52px; }
+  .content { padding-left: 48px; }
+}
+
+@media (max-width: 768px) {
+  .columns-overlay {
+    mask-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 80px,
+      black 80px,
+      black 95px
+    );
+    -webkit-mask-image: repeating-linear-gradient(
+      to right,
+      transparent 0,
+      transparent 80px,
+      black 80px,
+      black 95px
+    );
+  }
+  .content h1 { font-size: 38px; }
+  .content p { font-size: 16px; max-width: 90%; }
+  .content { padding-left: 24px; }
+}
