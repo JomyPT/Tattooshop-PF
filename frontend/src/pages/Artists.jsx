@@ -1,67 +1,32 @@
 import { useEffect, useState } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import "./Artists.css";
+import { initialArtists, initialPortfolios, initialTattoos } from '../config/mockData';
 
-// Dados mockados temporários
-const mockArtists = [
-  {
-    id: 1,
-    slug: "sergio-vilares",
-    nome: "Sérgio Vilares",
-    bio: "Especialista em tatuagens vintage e tradicionais com mais de 10 anos de experiência",
-    foto: "",
-    portfolios: [
-      {
-        id: 1,
-        titulo: "Portefólio",
-        descricao: "Tatuagens de Sérgio Vilares",
-        tattoos: [
-          { id: "s1", imageUrl: "/portfolio/sergio-vilares/11.png", legenda: "Tattoo 1", estilo: "" },
-          { id: "s2", imageUrl: "/portfolio/sergio-vilares/22.png", legenda: "Tattoo 2", estilo: "" },
-          { id: "s3", imageUrl: "/portfolio/sergio-vilares/33.png", legenda: "Tattoo 3", estilo: "" }
-        ]
-      }
-    ]
-  },
-  {
-    id: 4,
-    slug: "renato",
-    nome: "Renato",
-    bio: "Portefólio atualizado com os últimos trabalhos do Renato.",
-    foto: "",
-    portfolios: [
-      {
-        id: 5,
-        titulo: "Portefólio",
-        descricao: "Tatuagens do Renato",
-        tattoos: [
-          { id: "r1", imageUrl: "/portfolio/renato/111.png", legenda: "Tattoo 1", estilo: "" },
-          { id: "r2", imageUrl: "/portfolio/renato/222.png", legenda: "Tattoo 2", estilo: "" },
-          { id: "r3", imageUrl: "/portfolio/renato/333.png", legenda: "Tattoo 3", estilo: "" }
-        ]
-      }
-    ]
-  },
-  {
-    id: 5,
-    slug: "beatriz",
-    nome: "Beatriz",
-    bio: "Portefólio atualizado com os últimos trabalhos da Beatriz.",
-    foto: "",
-    portfolios: [
-      {
-        id: 6,
-        titulo: "Portefólio",
-        descricao: "Tatuagens da Beatriz",
-        tattoos: [
-          { id: "b1", imageUrl: "/portfolio/beatriz/1.png", legenda: "Tattoo 1", estilo: "" },
-          { id: "b2", imageUrl: "/portfolio/beatriz/2.png", legenda: "Tattoo 2", estilo: "" },
-          { id: "b3", imageUrl: "/portfolio/beatriz/3.png", legenda: "Tattoo 3", estilo: "" }
-        ]
-      }
-    ]
-  }
-];
+// Função para construir o objeto de artistas com seus portfolios e tatuagens
+function buildArtistsWithPortfolios(artists, portfolios, tattoos) {
+  return artists.map(artist => ({
+    ...artist,
+    nome: artist.name,
+    foto: artist.image,
+    portfolios: portfolios
+      .filter(p => p.artistId === artist.id)
+      .map(p => ({
+        ...p,
+        titulo: p.title,
+        descricao: p.description,
+        tattoos: tattoos
+          .filter(t => t.portfolioId === p.id)
+          .map(t => ({
+            ...t,
+            id: String(t.id),
+            imageUrl: t.image,
+            legenda: t.title,
+            estilo: t.description || ""
+          }))
+      }))
+  }));
+}
 
 export default function Artists() {
   const [artists, setArtists] = useState([]);
@@ -72,23 +37,10 @@ export default function Artists() {
   const { artistSlug } = useParams();
 
   useEffect(() => {
-    const fetchArtists = async () => {
-      try {
-        // Tentar buscar da API primeiro
-        const res = await fetch("/api/artists");
-        if (!res.ok) throw new Error("API indisponível");
-        const data = await res.json();
-        setArtists(data.slice(0, 3));
-      } catch (err) {
-        // Se falhar, usar dados mockados
-        console.log("Usando dados mockados:", err.message);
-        setArtists(mockArtists);
-        setError(""); // Não mostrar erro se temos dados mockados
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchArtists();
+    // Usar dados centralizados
+    const mockArtists = buildArtistsWithPortfolios(initialArtists, initialPortfolios, initialTattoos);
+    setArtists(mockArtists);
+    setLoading(false);
   }, []);
 
   useEffect(() => {
@@ -98,15 +50,6 @@ export default function Artists() {
       const artist = artists.find(a => a.slug === artistSlug);
       if (artist) {
         setSelectedArtist(artist.id);
-        window.scrollTo(0, 0);
-        return;
-      }
-
-      // Se a API não devolver o slug, forçar fallback para mock e tentar de novo
-      const mockMatch = mockArtists.find(a => a.slug === artistSlug);
-      if (mockMatch && artists !== mockArtists) {
-        setArtists(mockArtists);
-        setSelectedArtist(mockMatch.id);
         window.scrollTo(0, 0);
         return;
       }

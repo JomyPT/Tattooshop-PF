@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "./Booking.css";
 import { studioInfo } from "../config/studioConfig";
@@ -23,6 +23,17 @@ export default function Booking() {
   const [fieldErrors, setFieldErrors] = useState({});
   const [files, setFiles] = useState([]);
   const [previews, setPreviews] = useState([]);
+
+  useEffect(() => {
+    if (success) {
+      window.scrollTo({ top: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: 0, behavior: "auto" });
+      });
+    }
+  }, [success]);
 
   // Validação em tempo real
   function validateField(name, value) {
@@ -199,6 +210,12 @@ export default function Booking() {
 
       if (response.ok) {
         setSuccess(true);
+        window.scrollTo({ top: 0, behavior: "auto" });
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        requestAnimationFrame(() => {
+          window.scrollTo({ top: 0, behavior: "auto" });
+        });
         setForm({
           nome: "",
           email: "",
@@ -313,6 +330,7 @@ export default function Booking() {
                   value={form.data}
                   onChange={handleChange}
                   className={fieldErrors.data ? "error" : ""}
+                  style={{ colorScheme: 'dark' }}
                 />
                 {fieldErrors.data && <span className="field-error">{fieldErrors.data}</span>}
               </div>

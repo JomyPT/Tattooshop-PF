@@ -4,6 +4,26 @@
   padding: 80px 20px 40px;
 }
 
+.admin-container input,
+.admin-container textarea,
+.admin-container select {
+  background: #fff !important;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  color-scheme: light;
+}
+
+.admin-container input::placeholder,
+.admin-container textarea::placeholder {
+  color: #000 !important;
+}
+
+.admin-container select,
+.admin-container option {
+  background: #fff !important;
+  color: #000 !important;
+}
+
 .login-box {
   max-width: 450px;
   margin: 0 auto;
@@ -37,7 +57,7 @@
 .form-group input {
   width: 100%;
   padding: 12px;
-  border: 1px solid #d5c7b8;
+  border: 2px solid #c59d5f;
   border-radius: 8px;
   font-size: 14px;
   font-family: "Manrope", system-ui, sans-serif;
@@ -45,9 +65,47 @@
   color: #000 !important;
 }
 
+.form-group input::placeholder {
+  color: #000 !important;
+}
+
+.login-box input,
+.login-box input::placeholder {
+  color: #000 !important;
+}
+
 .form-group input:focus {
   outline: none;
   border-color: #2f2417;
+}
+
+.form-group input:focus,
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+.login-box input:focus,
+.login-box input:-webkit-autofill,
+.login-box input:-webkit-autofill:hover,
+.login-box input:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 9999s ease-in-out 0s;
+}
+
+.admin-panel input:-webkit-autofill,
+.admin-panel textarea:-webkit-autofill,
+.admin-panel select:-webkit-autofill,
+.admin-panel input:-webkit-autofill:hover,
+.admin-panel textarea:-webkit-autofill:hover,
+.admin-panel select:-webkit-autofill:hover,
+.admin-panel input:-webkit-autofill:focus,
+.admin-panel textarea:-webkit-autofill:focus,
+.admin-panel select:-webkit-autofill:focus {
+  -webkit-text-fill-color: #000 !important;
+  transition: background-color 9999s ease-in-out 0s;
 }
 
 .error-message {
@@ -88,7 +146,7 @@
 }
 
 .tab-btn:hover {
-  color: #2d2418;
+  color: #000;
   border-bottom-color: #c59d5f;
 }
 
@@ -103,6 +161,13 @@
   border-radius: 10px;
   margin-bottom: 30px;
   border: 1px solid #d5c7b8;
+  transition: all 0.3s ease;
+}
+
+.admin-form.editing {
+  background: #fff5e6;
+  border: 2px solid #2f2417;
+  box-shadow: 0 4px 12px rgba(47, 36, 23, 0.1);
 }
 
 .admin-form h3 {
@@ -124,7 +189,7 @@
 .admin-form select {
   width: 100%;
   padding: 12px;
-  border: 1px solid #d5c7b8;
+  border: 2px solid #c59d5f;
   border-radius: 8px;
   font-size: 14px;
   font-family: "Manrope", system-ui, sans-serif;
@@ -133,9 +198,26 @@
   background: white !important;
 }
 
+.admin-panel input,
+.admin-panel textarea,
+.admin-panel select,
+.admin-panel option {
+  color: #000 !important;
+}
+
+.admin-panel select,
+.admin-panel option {
+  background: #fffaf4;
+}
+
+.admin-panel input::placeholder,
+.admin-panel textarea::placeholder {
+  color: #000 !important;
+}
+
 .admin-form input::placeholder,
 .admin-form textarea::placeholder {
-  color: #333;
+  color: #2d2418;
 }
 
 .admin-form textarea {
@@ -270,6 +352,7 @@
 
 .btn-edit:hover {
   background: #b08a4f;
+  color: #000;
 }
 
 .btn-delete {
@@ -354,6 +437,269 @@
 .login-btn:hover {
   transform: translateY(-1px);
   box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2);
+}
+
+/* Estilos do Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.modal-content {
+  background: white;
+  border-radius: 14px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+  color-scheme: light;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 25px;
+  border-bottom: 1px solid #d5c7b8;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 24px;
+  color: #2d2418;
+  font-family: "DM Serif Display", "Playfair Display", Georgia, serif;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 28px;
+  color: #8b8680;
+  cursor: pointer;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s ease;
+}
+
+.modal-close:hover {
+  color: #2d2418;
+}
+
+.modal-body {
+  padding: 25px;
+}
+
+.modal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modal-form .form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.modal-form label {
+  font-weight: 600;
+  color: #2d2418;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.modal-form input,
+.modal-form textarea,
+.modal-form select {
+  padding: 12px 14px;
+  border: 2px solid #c59d5f;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: "Manrope", system-ui, sans-serif;
+  color: #000 !important;
+  background: #fff !important;
+  -webkit-text-fill-color: #000 !important;
+  transition: border-color 0.2s ease;
+}
+
+.modal-form input::placeholder,
+.modal-form textarea::placeholder {
+  color: #2d2418;
+}
+
+.modal-form select,
+.modal-form option {
+  background: #fff !important;
+  color: #000 !important;
+}
+
+.modal-form select {
+  background-color: #fff !important;
+  color: #000 !important;
+  color-scheme: light;
+  -webkit-text-fill-color: #000 !important;
+}
+
+.modal-form select option:checked,
+.modal-form select option:hover,
+.modal-form select option:focus {
+  background-color: #fff !important;
+  color: #000 !important;
+}
+
+.modal-form select:invalid,
+.modal-form select:required:invalid,
+.modal-form select option[disabled],
+.modal-form select option[value=""] {
+  color: #000 !important;
+}
+
+.modal-form input:focus,
+.modal-form textarea:focus,
+.modal-form select:focus {
+  outline: none;
+  border-color: #2f2417;
+  background: #fff;
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+}
+
+.modal-form textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+.custom-select {
+  position: relative;
+  width: 100%;
+}
+
+.custom-select-trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border: 2px solid #c59d5f;
+  border-radius: 8px;
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-family: "Manrope", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.custom-select-text.placeholder {
+  color: #000;
+}
+
+.custom-select-arrow {
+  color: #000;
+  font-size: 12px;
+}
+
+.custom-select-menu {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 2px solid #c59d5f;
+  border-radius: 8px;
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+  padding: 6px;
+}
+
+.custom-select-option {
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  color: #000;
+  border: none;
+  padding: 8px 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: "Manrope", system-ui, sans-serif;
+  cursor: pointer;
+}
+
+.custom-select-option:hover,
+.custom-select-option.selected {
+  background: #f2ede6;
+  color: #000;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.section-header h2 {
+  margin: 0;
+}
+
+.btn-add {
+  background: #2f2417;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 14px;
+  transition: background 0.2s ease;
+}
+
+.btn-add:hover {
+  background: #1a1410;
+}
+
+.empty-list {
+  text-align: center;
+  color: #8b8680;
+  padding: 40px 20px;
+  font-style: italic;
 }
 
 .admin-section h2 {

@@ -1,17 +1,23 @@
 import { useNavigate } from "react-router-dom";
 import "./Works.css";
+import { initialArtists, initialPortfolios, initialTattoos } from '../config/mockData';
 
-const tattoos = [
-  { src: "/portfolio/sergio-vilares/11.png", artist: "Sérgio Vilares", artistId: 1, slug: "sergio-vilares" },
-  { src: "/portfolio/sergio-vilares/22.png", artist: "Sérgio Vilares", artistId: 1, slug: "sergio-vilares" },
-  { src: "/portfolio/sergio-vilares/33.png", artist: "Sérgio Vilares", artistId: 1, slug: "sergio-vilares" },
-  { src: "/portfolio/renato/111.png", artist: "Renato", artistId: 4, slug: "renato" },
-  { src: "/portfolio/renato/222.png", artist: "Renato", artistId: 4, slug: "renato" },
-  { src: "/portfolio/renato/333.png", artist: "Renato", artistId: 4, slug: "renato" },
-  { src: "/portfolio/beatriz/1.png", artist: "Beatriz", artistId: 5, slug: "beatriz" },
-  { src: "/portfolio/beatriz/2.png", artist: "Beatriz", artistId: 5, slug: "beatriz" },
-  { src: "/portfolio/beatriz/3.png", artist: "Beatriz", artistId: 5, slug: "beatriz" }
-];
+// Construir lista de tatuagens com informações do artista
+const buildTattoosList = () => {
+  return initialTattoos.map(tattoo => {
+    const portfolio = initialPortfolios.find(p => p.id === tattoo.portfolioId);
+    const artist = initialArtists.find(a => a.id === portfolio?.artistId);
+    return {
+      ...tattoo,
+      src: tattoo.image,
+      artist: artist?.name || 'Desconhecido',
+      artistId: artist?.id,
+      slug: artist?.slug
+    };
+  });
+};
+
+const tattoos = buildTattoosList();
 
 export default function Works() {
   const navigate = useNavigate();

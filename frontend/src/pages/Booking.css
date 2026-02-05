@@ -145,13 +145,14 @@
   border-radius: 12px;
   border: 2px solid #c59d5f !important;
   background: rgba(50, 50, 50, 0.3) !important;
-  color: #ffffff !important;
+  color: #999 !important;
   font-size: 1rem;
   transition: all 0.3s ease;
   font-family: inherit;
   appearance: none;
   -webkit-appearance: none;
   -moz-appearance: none;
+  -webkit-text-fill-color: #999 !important;
 }
 
 /* Forçar borda dourada em todos os tipos de input */
@@ -164,8 +165,13 @@
 
 /* Ícone do calendário branco */
 .form-group input[type="date"]::-webkit-calendar-picker-indicator {
-  filter: invert(1);
+  filter: brightness(0) invert(1);
   cursor: pointer;
+  opacity: 1;
+}
+
+.form-group input[type="date"]::placeholder {
+  color: #999;
 }
 
 .form-group input::placeholder,
@@ -182,6 +188,35 @@
   background: rgba(197, 157, 95, 0.15) !important;
   box-shadow: 0 0 20px rgba(197, 157, 95, 0.3);
   transform: translateY(-2px);
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+.booking .form-group input:focus,
+.booking .form-group textarea:focus,
+.booking .form-group select:focus,
+.booking .form-group input:active,
+.booking .form-group textarea:active,
+.booking .form-group select:active {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  caret-color: #ffffff !important;
+}
+
+.booking .form-group input:focus::placeholder,
+.booking .form-group textarea:focus::placeholder {
+  color: #ffffff !important;
+}
+
+/* Remove fundo branco do autofill e garante texto branco */
+.form-group input:-webkit-autofill,
+.form-group input:-webkit-autofill:hover,
+.form-group input:-webkit-autofill:focus,
+.form-group input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0 1000px rgba(50, 50, 50, 0.3) inset !important;
+  -webkit-text-fill-color: #ffffff !important;
+  color: #ffffff !important;
+  caret-color: #ffffff !important;
 }
 
 .form-group select {
