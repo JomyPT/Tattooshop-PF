@@ -130,7 +130,11 @@ export default function Artists() {
           {artists.map((artist) => (
             <div className="artist-card" key={artist.id}>
               <div className="artist-image">
-                <div className="artist-placeholder">👤</div>
+                {artist.foto ? (
+                  <img src={artist.foto} alt={artist.nome} />
+                ) : (
+                  <div className="artist-placeholder">👤</div>
+                )}
               </div>
               <div className="artist-content">
                 <h3>{artist.nome}</h3>
