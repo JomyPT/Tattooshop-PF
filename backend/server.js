@@ -118,7 +118,46 @@ async function initDatabase() {
     )
   `;
 
+  const createHistoricoTableSql = `
+    CREATE TABLE IF NOT EXISTS historico_atividades (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      agendamento_id INT,
+      nome_cliente VARCHAR(120) NOT NULL,
+      email_cliente VARCHAR(160),
+      acao VARCHAR(100) NOT NULL,
+      status_anterior VARCHAR(30),
+      status_novo VARCHAR(30),
+      observacao TEXT,
+      data_acao DATETIME NOT NULL,
+      INDEX idx_agendamento (agendamento_id)
+    )
+  `;
+
   await dbPool.execute(createTableSql);
+  await dbPool.execute(createHistoricoTableSql);
+}
+
+// Função auxiliar para registrar atividade
+async function registrarAtividade(agendamentoId, nomeCliente, emailCliente, acao, statusAnterior = null, statusNovo = null, observacao = null) {
+  const insertSql = `
+    INSERT INTO historico_atividades (agendamento_id, nome_cliente, email_cliente, acao, status_anterior, status_novo, observacao, data_acao)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `;
+  
+  try {
+    await dbPool.execute(insertSql, [
+      agendamentoId,
+      nomeCliente,
+      emailCliente,
+      acao,
+      statusAnterior,
+      statusNovo,
+      observacao,
+      new Date()
+    ]);
+  } catch (error) {
+    console.error('Erro ao registrar atividade:', error);
+  }
 }
 
 // Rotas
@@ -223,21 +262,34 @@ app.get('/api/agendamentos', (req, res) => {
   const listSql = 'SELECT * FROM agendamentos ORDER BY data_criacao DESC';
   dbPool.execute(listSql)
     .then(([rows]) => {
-      const formatted = rows.map(row => ({
-        id: row.id,
-        nome: row.nome,
-        email: row.email,
-        telefone: row.telefone,
-        data: row.data_agendamento,
-        estilo: row.estilo,
-        localizacao: row.localizacao,
-        tamanho: row.tamanho,
-        horarioPreferencial: row.horario_preferencial,
-        descricao: row.descricao,
-        imagens: row.imagens ? JSON.parse(row.imagens) : [],
-        dataCriacao: row.data_criacao,
-        status: row.status
-      }));
+      const formatted = rows.map(row => {
+        let imagens = [];
+        try {
+          if (row.imagens) {
+            // MySQL pode retornar JSON já parseado ou como string
+            imagens = typeof row.imagens === 'string' ? JSON.parse(row.imagens) : row.imagens;
+          }
+        } catch (e) {
+          console.error('Erro ao parsear imagens:', e);
+          imagens = [];
+        }
+        
+        return {
+          id: row.id,
+          nome: row.nome,
+          email: row.email,
+          telefone: row.telefone,
+          data: row.data_agendamento,
+          estilo: row.estilo,
+          localizacao: row.localizacao,
+          tamanho: row.tamanho,
+          horarioPreferencial: row.horario_preferencial,
+          descricao: row.descricao,
+          imagens: imagens,
+          dataCriacao: row.data_criacao,
+          status: row.status
+        };
+      });
       res.json(formatted);
     })
     .catch((error) => {
@@ -258,6 +310,17 @@ app.get('/api/agendamentos/:id', (req, res) => {
       }
 
       const row = rows[0];
+      let imagens = [];
+      try {
+        if (row.imagens) {
+          // MySQL pode retornar JSON já parseado ou como string
+          imagens = typeof row.imagens === 'string' ? JSON.parse(row.imagens) : row.imagens;
+        }
+      } catch (e) {
+        console.error('Erro ao parsear imagens:', e);
+        imagens = [];
+      }
+
       res.json({
         id: row.id,
         nome: row.nome,
@@ -269,7 +332,7 @@ app.get('/api/agendamentos/:id', (req, res) => {
         tamanho: row.tamanho,
         horarioPreferencial: row.horario_preferencial,
         descricao: row.descricao,
-        imagens: row.imagens ? JSON.parse(row.imagens) : [],
+        imagens: imagens,
         dataCriacao: row.data_criacao,
         status: row.status
       });
@@ -280,21 +343,155 @@ app.get('/api/agendamentos/:id', (req, res) => {
     });
 });
 
+// PATCH /api/agendamentos/:id - Atualizar status do agendamento
+app.patch('/api/agendamentos/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const { status } = req.body;
+    
+    if (!status) {
+      return res.status(400).json({ error: 'Status é obrigatório' });
+    }
+
+    // Buscar status anterior
+    const [rows] = await dbPool.execute('SELECT status, nome, email FROM agendamentos WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Agendamento não encontrado' });
+    }
+
+    const statusAnterior = rows[0].status;
+    const nomeCliente = rows[0].nome;
+    const emailCliente = rows[0].email;
+
+    // Atualizar status
+    const updateSql = 'UPDATE agendamentos SET status = ? WHERE id = ?';
+    const [result] = await dbPool.execute(updateSql, [status, id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Agendamento não encontrado' });
+    }
+
+    // Registrar atividade
+    await registrarAtividade(
+      id,
+      nomeCliente,
+      emailCliente,
+      'Mudança de Status',
+      statusAnterior,
+      status,
+      `Agendamento de ${nomeCliente} alterado de "${statusAnterior}" para "${status}"`
+    );
+
+    res.json({ message: 'Status atualizado com sucesso', status });
+  } catch (error) {
+    console.error('Erro ao atualizar agendamento:', error);
+    res.status(500).json({ error: 'Erro ao atualizar agendamento' });
+  }
+});
+
 // DELETE /api/agendamentos/:id - Deletar agendamento
-app.delete('/api/agendamentos/:id', (req, res) => {
-  const id = parseInt(req.params.id);
-  const deleteSql = 'DELETE FROM agendamentos WHERE id = ?';
-  dbPool.execute(deleteSql, [id])
-    .then(([result]) => {
-      if (result.affectedRows === 0) {
-        return res.status(404).json({ error: 'Agendamento não encontrado' });
-      }
-      res.json({ message: 'Agendamento deletado com sucesso' });
-    })
-    .catch((error) => {
-      console.error('Erro ao deletar agendamento:', error);
-      res.status(500).json({ error: 'Erro ao deletar agendamento' });
-    });
+app.delete('/api/agendamentos/:id', async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    
+    // Buscar informações do agendamento antes de deletar
+    const [rows] = await dbPool.execute('SELECT nome, email, status FROM agendamentos WHERE id = ?', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ error: 'Agendamento não encontrado' });
+    }
+
+    const nomeCliente = rows[0].nome;
+    const emailCliente = rows[0].email;
+    const statusAtual = rows[0].status;
+
+    // Registrar atividade antes de deletar
+    await registrarAtividade(
+      id,
+      nomeCliente,
+      emailCliente,
+      'Agendamento Eliminado',
+      statusAtual,
+      null,
+      `Agendamento de ${nomeCliente} foi eliminado do sistema`
+    );
+
+    // Deletar agendamento (o histórico permanece)
+    const deleteSql = 'DELETE FROM agendamentos WHERE id = ?';
+    const [result] = await dbPool.execute(deleteSql, [id]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: 'Agendamento não encontrado' });
+    }
+
+    res.json({ message: 'Agendamento deletado com sucesso' });
+  } catch (error) {
+    console.error('Erro ao deletar agendamento:', error);
+    res.status(500).json({ error: 'Erro ao deletar agendamento' });
+  }
+});
+
+// GET /api/historico - Buscar todo o histórico de atividades
+app.get('/api/historico', async (req, res) => {
+  try {
+    const sql = `
+      SELECT *
+      FROM historico_atividades
+      ORDER BY data_acao DESC
+      LIMIT 100
+    `;
+    
+    const [rows] = await dbPool.execute(sql);
+    
+    const historico = rows.map(row => ({
+      id: row.id,
+      agendamentoId: row.agendamento_id,
+      nomeCliente: row.nome_cliente,
+      emailCliente: row.email_cliente,
+      acao: row.acao,
+      statusAnterior: row.status_anterior,
+      statusNovo: row.status_novo,
+      observacao: row.observacao,
+      dataAcao: row.data_acao
+    }));
+
+    res.json(historico);
+  } catch (error) {
+    console.error('Erro ao buscar histórico:', error);
+    res.status(500).json({ error: 'Erro ao buscar histórico' });
+  }
+});
+
+// GET /api/historico/:agendamentoId - Buscar histórico de um agendamento específico
+app.get('/api/historico/:agendamentoId', async (req, res) => {
+  try {
+    const agendamentoId = parseInt(req.params.agendamentoId);
+    
+    const sql = `
+      SELECT *
+      FROM historico_atividades
+      WHERE agendamento_id = ?
+      ORDER BY data_acao DESC
+    `;
+    
+    const [rows] = await dbPool.execute(sql, [agendamentoId]);
+    
+    const historico = rows.map(row => ({
+      id: row.id,
+      agendamentoId: row.agendamento_id,
+      nomeCliente: row.nome_cliente,
+      emailCliente: row.email_cliente,
+      acao: row.acao,
+      statusAnterior: row.status_anterior,
+      statusNovo: row.status_novo,
+      observacao: row.observacao,
+      dataAcao: row.data_acao
+    }));
+
+    res.json(historico);
+  } catch (error) {
+    console.error('Erro ao buscar histórico do agendamento:', error);
+    res.status(500).json({ error: 'Erro ao buscar histórico do agendamento' });
+  }
 });
 
 // Servir arquivos estáticos (uploads)
@@ -316,11 +513,16 @@ initDatabase()
       console.log(`🚀 Servidor rodando na porta ${PORT}`);
       console.log(`📍 URL: http://localhost:${PORT}`);
       console.log(`✅ API endpoints disponíveis:`);
-      console.log(`   GET  /api/health`);
-      console.log(`   GET  /api/artists`);
-      console.log(`   GET  /api/artists/:slug`);
-      console.log(`   POST /api/agendamentos`);
-      console.log(`   GET  /api/agendamentos`);
+      console.log(`   GET    /api/health`);
+      console.log(`   GET    /api/artists`);
+      console.log(`   GET    /api/artists/:slug`);
+      console.log(`   POST   /api/agendamentos`);
+      console.log(`   GET    /api/agendamentos`);
+      console.log(`   GET    /api/agendamentos/:id`);
+      console.log(`   PATCH  /api/agendamentos/:id`);
+      console.log(`   DELETE /api/agendamentos/:id`);
+      console.log(`   GET    /api/historico`);
+      console.log(`   GET    /api/historico/:agendamentoId`);
     });
   })
   .catch((error) => {

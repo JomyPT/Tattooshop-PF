@@ -68,7 +68,7 @@ export default function Home() {
             </p>
             <p>
               Com uma abordagem vintage e clássica, combinamos técnicas tradicionais com criatividade moderna. 
-              Acreditamos que uma tatuagem é mais do que tinta na pele – é uma expressão permanente de quem tu és.
+              Acreditamos que uma tatuagem é mais do que tinta na pele é uma expressão permanente de quem tu és.
             </p>
             <p>
               Cada design é pensado meticulosamente, respeitando as suas ideias e transformando-as em obras de arte 

@@ -12,9 +12,12 @@ const Footer = () => {
         <div className="footer-content">
           {/* Brand Section */}
           <div className="footer-brand">
-            <div>
-              <h2 className="footer-logo">Vilares Vintage Tattoos</h2>
-              <p className="footer-tagline">Arte permanente, memórias eternas</p>
+            <div className="footer-brand-content">
+              <img src="/logo.png" alt="Vilares Vintage Tattoos Logo" className="footer-logo-icon" />
+              <div>
+                <h2 className="footer-logo">Vilares Vintage Tattoos</h2>
+                <p className="footer-tagline">Arte permanente, memórias eternas</p>
+              </div>
             </div>
             <div className="footer-social">
               <a 

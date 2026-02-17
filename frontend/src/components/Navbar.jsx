@@ -16,7 +16,8 @@ export default function Navbar() {
   return (
     <header className="navbar">
       <Link to="/" className="logo" onClick={closeMenu}>
-        <span>Vilares</span>VintageTattoos
+        <img src="/logo.png" alt="Vilares Vintage Tattoos Logo" className="logo-icon" />
+        <span className="logo-text"><span className="highlight">Vilares</span>VintageTattoos</span>
       </Link>
 
       <button className="hamburger" onClick={toggleMenu} aria-label="Menu">

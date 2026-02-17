@@ -18,9 +18,28 @@
   font-weight: 600;
   text-decoration: none;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
-.logo span {
+.logo-icon {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+  transition: transform 0.3s ease;
+}
+
+.logo:hover .logo-icon {
+  transform: scale(1.05);
+}
+
+.logo-text {
+  color: white;
+  white-space: nowrap;
+}
+
+.logo .highlight {
   color: #c59d5f;
 }
 
@@ -121,6 +140,12 @@
 
   .logo {
     font-size: 16px;
+    gap: 10px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
   }
 
   .hamburger {
@@ -186,9 +211,15 @@
 
   .logo {
     font-size: 14px;
+    gap: 8px;
   }
 
-  .logo span {
+  .logo-icon {
+    width: 32px;
+    height: 32px;
+  }
+
+  .logo-text {
     display: none;
   }
 

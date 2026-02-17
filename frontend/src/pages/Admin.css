@@ -707,3 +707,318 @@
   font-size: 32px;
   letter-spacing: 0.02em;
 }
+/* Estilos para Agendamentos */
+.agendamentos-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.agendamento-card {
+  background: white;
+  border: 1px solid #d5c7b8;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.agendamento-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e8e2d9;
+}
+
+.agendamento-header h4 {
+  margin: 0;
+  font-size: 20px;
+  color: #2d2418;
+}
+
+.status-badge {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pendente {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-confirmado {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.status-cancelado {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-concluido {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.agendamento-details p {
+  margin: 8px 0;
+  color: #3d3530;
+  font-size: 14px;
+}
+
+.agendamento-details strong {
+  color: #2d2418;
+  font-weight: 600;
+}
+
+.agendamento-meta {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e8e2d9;
+}
+
+.agendamento-meta small {
+  color: #8b8680;
+  font-size: 12px;
+}
+
+.agendamento-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+  align-items: center;
+}
+
+.btn-view {
+  background: #c59d5f;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-size: 13px;
+  transition: background 0.2s ease;
+}
+
+.btn-view:hover {
+  background: #a9864f;
+}
+
+.status-select {
+  flex: 1;
+  padding: 8px 12px;
+  border: 2px solid #c59d5f;
+  border-radius: 6px;
+  background: white;
+  color: #000;
+  font-size: 13px;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #2f2417;
+}
+
+.loading-message {
+  text-align: center;
+  color: #8b8680;
+  padding: 40px 20px;
+  font-style: italic;
+}
+
+.agendamento-details-modal {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.detail-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.detail-row strong {
+  color: #2d2418;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.detail-row span,
+.detail-row p {
+  color: #3d3530;
+  font-size: 14px;
+  margin: 0;
+}
+
+.reference-images {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.reference-images img {
+  border-radius: 8px;
+  border: 1px solid #d5c7b8;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .agendamento-actions {
+    flex-direction: column;
+  }
+
+  .status-select {
+    width: 100%;
+  }
+}
+
+/* Estilos para Histórico de Atividades */
+.filter-select {
+  padding: 10px 16px;
+  border: 2px solid #c59d5f;
+  border-radius: 8px;
+  background: white;
+  color: #000;
+  font-size: 14px;
+  font-family: "Manrope", system-ui, sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.filter-select:focus {
+  outline: none;
+  border-color: #2f2417;
+}
+
+.historico-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.historico-item {
+  background: white;
+  border: 1px solid #d5c7b8;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.2s ease;
+}
+
+.historico-item:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+}
+
+.historico-header {
+  display: flex;
+  gap: 15px;
+  align-items: flex-start;
+  margin-bottom: 12px;
+}
+
+.historico-icon {
+  font-size: 32px;
+  line-height: 1;
+}
+
+.historico-info {
+  flex: 1;
+}
+
+.historico-info h4 {
+  margin: 0 0 5px 0;
+  font-size: 18px;
+  color: #2d2418;
+}
+
+.historico-time {
+  margin: 0;
+  color: #8b8680;
+  font-size: 13px;
+}
+
+.historico-details {
+  margin-left: 47px;
+  padding-top: 12px;
+  border-top: 1px solid #e8e2d9;
+}
+
+.historico-details p {
+  margin: 6px 0;
+  color: #3d3530;
+  font-size: 14px;
+}
+
+.historico-details strong {
+  color: #2d2418;
+  font-weight: 600;
+}
+
+.status-change {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 10px 0;
+  padding: 10px;
+  background: #f8f5f0;
+  border-radius: 8px;
+  width: fit-content;
+}
+
+.status-badge-mini {
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.arrow {
+  color: #8b8680;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.historico-observacao {
+  margin-top: 10px;
+  padding: 10px;
+  background: #fef9f3;
+  border-left: 3px solid #c59d5f;
+  border-radius: 4px;
+  color: #5a4a3a;
+  font-size: 13px;
+}
+
+@media (max-width: 768px) {
+  .historico-header {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .historico-details {
+    margin-left: 0;
+  }
+
+  .status-change {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+
+  .arrow {
+    transform: rotate(90deg);
+  }
+}

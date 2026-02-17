@@ -1,6 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './Admin.css';
 import { initialArtists, initialPortfolios, initialTattoos } from '../config/mockData';
+
+const API_URL = 'http://localhost:8080/api';
 
 // Componente Modal Reutilizável
 function Modal({ isOpen, title, onClose, children }) {
@@ -91,6 +93,137 @@ function Admin() {
   const [newTattoo, setNewTattoo] = useState({ portfolioId: '', title: '', image: '', description: '' });
   const [editingTattoo, setEditingTattoo] = useState(null);
   const [showTattooModal, setShowTattooModal] = useState(false);
+
+  // Estados para agendamentos
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [loadingAgendamentos, setLoadingAgendamentos] = useState(false);
+  const [selectedAgendamento, setSelectedAgendamento] = useState(null);
+  const [showAgendamentoModal, setShowAgendamentoModal] = useState(false);
+
+  // Estados para histórico de atividades
+  const [historico, setHistorico] = useState([]);
+  const [loadingHistorico, setLoadingHistorico] = useState(false);
+  const [historicoFiltrado, setHistoricoFiltrado] = useState([]);
+  const [filtroHistorico, setFiltroHistorico] = useState('todos'); // todos, mudanca_status, eliminado
+
+  // Buscar agendamentos quando a aba estiver ativa
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'agendamentos') {
+      fetchAgendamentos();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  // Buscar histórico quando a aba estiver ativa
+  useEffect(() => {
+    if (isAuthenticated && activeTab === 'historico') {
+      fetchHistorico();
+    }
+  }, [activeTab, isAuthenticated]);
+
+  // Aplicar filtro no histórico
+  useEffect(() => {
+    if (filtroHistorico === 'todos') {
+      setHistoricoFiltrado(historico);
+    } else if (filtroHistorico === 'mudanca_status') {
+      setHistoricoFiltrado(historico.filter(h => h.acao === 'Mudança de Status'));
+    } else if (filtroHistorico === 'eliminado') {
+      setHistoricoFiltrado(historico.filter(h => h.acao === 'Agendamento Eliminado'));
+    }
+  }, [filtroHistorico, historico]);
+
+  const fetchAgendamentos = async () => {
+    setLoadingAgendamentos(true);
+    try {
+      const response = await fetch(`${API_URL}/agendamentos`);
+      if (response.ok) {
+        const data = await response.json();
+        setAgendamentos(data);
+      } else {
+        console.error('Erro ao buscar agendamentos');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar agendamentos:', error);
+    } finally {
+      setLoadingAgendamentos(false);
+    }
+  };
+
+  const fetchHistorico = async () => {
+    setLoadingHistorico(true);
+    try {
+      const response = await fetch(`${API_URL}/historico`);
+      if (response.ok) {
+        const data = await response.json();
+        setHistorico(data);
+      } else {
+        console.error('Erro ao buscar histórico');
+      }
+    } catch (error) {
+      console.error('Erro ao buscar histórico:', error);
+    } finally {
+      setLoadingHistorico(false);
+    }
+  };
+
+  const handleDeleteAgendamento = async (id) => {
+    if (!confirm('Tem certeza que deseja eliminar este agendamento?')) return;
+
+    try {
+      const response = await fetch(`${API_URL}/agendamentos/${id}`, {
+        method: 'DELETE'
+      });
+
+      if (response.ok) {
+        setAgendamentos(agendamentos.filter(a => a.id !== id));
+        alert('Agendamento eliminado com sucesso!');
+        // Atualizar histórico se estiver na aba de histórico
+        if (activeTab === 'historico') {
+          fetchHistorico();
+        }
+      } else {
+        alert('Erro ao eliminar agendamento');
+      }
+    } catch (error) {
+      console.error('Erro ao eliminar agendamento:', error);
+      alert('Erro ao eliminar agendamento');
+    }
+  };
+
+  const handleUpdateStatusAgendamento = async (id, newStatus) => {
+    try {
+      const response = await fetch(`${API_URL}/agendamentos/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ status: newStatus })
+      });
+
+      if (response.ok) {
+        setAgendamentos(agendamentos.map(a => 
+          a.id === id ? { ...a, status: newStatus } : a
+        ));
+        if (selectedAgendamento?.id === id) {
+          setSelectedAgendamento({ ...selectedAgendamento, status: newStatus });
+        }
+      } else {
+        alert('Erro ao atualizar status');
+      }
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      alert('Erro ao atualizar status');
+    }
+  };
+
+  const openAgendamentoModal = (agendamento) => {
+    setSelectedAgendamento(agendamento);
+    setShowAgendamentoModal(true);
+  };
+
+  const closeAgendamentoModal = () => {
+    setShowAgendamentoModal(false);
+    setSelectedAgendamento(null);
+  };
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -314,6 +447,18 @@ function Admin() {
             onClick={() => setActiveTab('tattoos')}
           >
             Tatuagens
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'agendamentos' ? 'active' : ''}`}
+            onClick={() => setActiveTab('agendamentos')}
+          >
+            Agendamentos
+          </button>
+          <button 
+            className={`tab-btn ${activeTab === 'historico' ? 'active' : ''}`}
+            onClick={() => setActiveTab('historico')}
+          >
+            Histórico
           </button>
         </div>
         
@@ -597,6 +742,225 @@ function Admin() {
               </div>
             </form>
           </Modal>
+
+          {/* Gestão de Agendamentos */}
+          {activeTab === 'agendamentos' && (
+            <div className="admin-section">
+              <div className="section-header">
+                <h2>Pedidos de Agendamento</h2>
+                <button onClick={fetchAgendamentos} className="btn-add">↻ Atualizar</button>
+              </div>
+
+              {loadingAgendamentos ? (
+                <p className="loading-message">A carregar agendamentos...</p>
+              ) : agendamentos.length === 0 ? (
+                <p className="empty-list">Nenhum pedido de agendamento recebido</p>
+              ) : (
+                <div className="agendamentos-grid">
+                  {agendamentos.map(agendamento => (
+                    <div key={agendamento.id} className="agendamento-card">
+                      <div className="agendamento-header">
+                        <h4>{agendamento.nome}</h4>
+                        <span className={`status-badge status-${agendamento.status}`}>
+                          {agendamento.status}
+                        </span>
+                      </div>
+                      <div className="agendamento-details">
+                        <p><strong>Email:</strong> {agendamento.email}</p>
+                        <p><strong>Telefone:</strong> {agendamento.telefone || 'Não fornecido'}</p>
+                        <p><strong>Data Pretendida:</strong> {new Date(agendamento.data).toLocaleDateString('pt-PT')}</p>
+                        <p><strong>Estilo:</strong> {agendamento.estilo}</p>
+                        <p><strong>Localização:</strong> {agendamento.localizacao}</p>
+                        <p><strong>Tamanho:</strong> {agendamento.tamanho}</p>
+                        {agendamento.horarioPreferencial && agendamento.horarioPreferencial !== 'sem_preferencia' && (
+                          <p><strong>Horário:</strong> {agendamento.horarioPreferencial}</p>
+                        )}
+                        <p className="agendamento-meta">
+                          <small>Recebido em: {new Date(agendamento.dataCriacao).toLocaleString('pt-PT')}</small>
+                        </p>
+                      </div>
+                      <div className="agendamento-actions">
+                        <button onClick={() => openAgendamentoModal(agendamento)} className="btn-view">
+                          Ver Detalhes
+                        </button>
+                        <select 
+                          value={agendamento.status}
+                          onChange={(e) => handleUpdateStatusAgendamento(agendamento.id, e.target.value)}
+                          className="status-select"
+                        >
+                          <option value="pendente">Pendente</option>
+                          <option value="confirmado">Confirmado</option>
+                          <option value="cancelado">Cancelado</option>
+                          <option value="concluido">Concluído</option>
+                        </select>
+                        <button 
+                          onClick={() => handleDeleteAgendamento(agendamento.id)} 
+                          className="btn-delete"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Modal de Detalhes do Agendamento */}
+          <Modal 
+            isOpen={showAgendamentoModal} 
+            title="Detalhes do Agendamento"
+            onClose={closeAgendamentoModal}
+          >
+            {selectedAgendamento && (
+              <div className="agendamento-details-modal">
+                <div className="detail-row">
+                  <strong>Nome:</strong>
+                  <span>{selectedAgendamento.nome}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Email:</strong>
+                  <span>{selectedAgendamento.email}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Telefone:</strong>
+                  <span>{selectedAgendamento.telefone || 'Não fornecido'}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Data Pretendida:</strong>
+                  <span>{new Date(selectedAgendamento.data).toLocaleDateString('pt-PT')}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Estilo:</strong>
+                  <span>{selectedAgendamento.estilo}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Localização do Corpo:</strong>
+                  <span>{selectedAgendamento.localizacao}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Tamanho:</strong>
+                  <span>{selectedAgendamento.tamanho}</span>
+                </div>
+                <div className="detail-row">
+                  <strong>Horário Preferencial:</strong>
+                  <span>{selectedAgendamento.horarioPreferencial}</span>
+                </div>
+                {selectedAgendamento.descricao && (
+                  <div className="detail-row">
+                    <strong>Descrição:</strong>
+                    <p>{selectedAgendamento.descricao}</p>
+                  </div>
+                )}
+                {selectedAgendamento.imagens && selectedAgendamento.imagens.length > 0 && (
+                  <div className="detail-row">
+                    <strong>Imagens de Referência:</strong>
+                    <div className="reference-images">
+                      {selectedAgendamento.imagens.map((img, index) => (
+                        <img 
+                          key={index} 
+                          src={`http://localhost:8080${img}`} 
+                          alt={`Referência ${index + 1}`}
+                          style={{ maxWidth: '200px', margin: '5px' }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                )}
+                <div className="detail-row">
+                  <strong>Status:</strong>
+                  <select 
+                    value={selectedAgendamento.status}
+                    onChange={(e) => handleUpdateStatusAgendamento(selectedAgendamento.id, e.target.value)}
+                    className="status-select"
+                  >
+                    <option value="pendente">Pendente</option>
+                    <option value="confirmado">Confirmado</option>
+                    <option value="cancelado">Cancelado</option>
+                    <option value="concluido">Concluído</option>
+                  </select>
+                </div>
+                <div className="detail-row">
+                  <strong>Data de Submissão:</strong>
+                  <span>{new Date(selectedAgendamento.dataCriacao).toLocaleString('pt-PT')}</span>
+                </div>
+              </div>
+            )}
+          </Modal>
+
+          {/* Histórico de Atividades */}
+          {activeTab === 'historico' && (
+            <div className="admin-section">
+              <div className="section-header">
+                <h2>Histórico de Atividades</h2>
+                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                  <select 
+                    value={filtroHistorico} 
+                    onChange={(e) => setFiltroHistorico(e.target.value)}
+                    className="filter-select"
+                  >
+                    <option value="todos">Todas as Atividades</option>
+                    <option value="mudanca_status">Mudanças de Status</option>
+                    <option value="eliminado">Agendamentos Eliminados</option>
+                  </select>
+                  <button onClick={fetchHistorico} className="btn-add">↻ Atualizar</button>
+                </div>
+              </div>
+
+              {loadingHistorico ? (
+                <p className="loading-message">A carregar histórico...</p>
+              ) : historicoFiltrado.length === 0 ? (
+                <p className="empty-list">Nenhuma atividade registada</p>
+              ) : (
+                <div className="historico-list">
+                  {historicoFiltrado.map(item => (
+                    <div key={item.id} className="historico-item">
+                      <div className="historico-header">
+                        <div className="historico-icon">
+                          {item.acao === 'Mudança de Status' ? '🔄' : '🗑️'}
+                        </div>
+                        <div className="historico-info">
+                          <h4>{item.acao}</h4>
+                          <p className="historico-time">
+                            {new Date(item.dataAcao).toLocaleString('pt-PT', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric',
+                              hour: '2-digit',
+                              minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="historico-details">
+                        <p><strong>Cliente:</strong> {item.nomeCliente}</p>
+                        {item.emailCliente && (
+                          <p><strong>Email:</strong> {item.emailCliente}</p>
+                        )}
+                        {item.acao === 'Mudança de Status' && (
+                          <div className="status-change">
+                            <span className={`status-badge-mini status-${item.statusAnterior}`}>
+                              {item.statusAnterior}
+                            </span>
+                            <span className="arrow">→</span>
+                            <span className={`status-badge-mini status-${item.statusNovo}`}>
+                              {item.statusNovo}
+                            </span>
+                          </div>
+                        )}
+                        {item.observacao && (
+                          <p className="historico-observacao">
+                            <em>{item.observacao}</em>
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </div>
