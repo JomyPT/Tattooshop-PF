@@ -1,5 +1,5 @@
 import "./Contact.css";
-import { FaMapMarkerAlt, FaPhoneAlt, FaClock } from "react-icons/fa";
+import { FaMapMarkerAlt, FaPhoneAlt, FaClock, FaStar } from "react-icons/fa";
 
 export default function Contact() {
   return (
@@ -84,7 +84,7 @@ export default function Contact() {
       </div>
 
       <div className="testimonials">
-        <h3>⭐ O que dizem os nossos clientes</h3>
+        <h3><FaStar /> O que dizem os nossos clientes</h3>
         <p className="testimonial-subtitle">Avaliações reais de clientes satisfeitos</p>
         <div className="testimonial-grid">
           <div className="testimonial-card">

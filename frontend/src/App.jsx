@@ -19,6 +19,7 @@ function AppContent() {
       {!isAdminPage && <Navbar />}
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/home" element={<Home />} />
         <Route path="/artistas" element={<Artists />} />
         <Route path="/artistas/:artistSlug" element={<Artists />} />
         <Route path="/trabalhos" element={<WorksPage />} />

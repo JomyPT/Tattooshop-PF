@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { FaMapMarkerAlt, FaClock, FaPhone } from "react-icons/fa";
 import LoadingSpinner from "../components/LoadingSpinner";
 import "./Booking.css";
 import { studioInfo } from "../config/studioConfig";
@@ -123,20 +124,20 @@ export default function Booking() {
       return;
     }
 
-    const allowedTypes = ["image/png", "image/jpeg"]; // jpg/jpeg/png
+    const allowedTypes = ["image/png", "image/jpeg", "image/webp"]; // jpg/jpeg/png/webp
     const filteredFiles = selectedFiles.filter(
-      (file) => allowedTypes.includes(file.type) || /\.(png|jpe?g)$/i.test(file.name)
+      (file) => allowedTypes.includes(file.type) || /\.(png|jpe?g|webp)$/i.test(file.name)
     );
 
     if (filteredFiles.length === 0) {
       setFiles([]);
       setPreviews([]);
-      setError("Apenas PNG e JPG/JPEG são permitidos");
+      setError("Apenas PNG, JPG/JPEG e WebP são permitidos");
       return;
     }
 
     if (filteredFiles.length !== selectedFiles.length) {
-      setError("Alguns ficheiros foram ignorados. Apenas PNG e JPG/JPEG são permitidos.");
+      setError("Alguns ficheiros foram ignorados. Apenas PNG, JPG/JPEG e WebP são permitidos.");
     } else if (error) {
       setError("");
     }
@@ -262,19 +263,19 @@ export default function Booking() {
         <div className="booking-content">
           <div className="booking-info">
             <div className="info-card">
-              <h3>📍 Localização</h3>
+              <h3><FaMapMarkerAlt /> Localização</h3>
               <p>{studioInfo.morada}</p>
               <p className="small">{studioInfo.cidade}, {studioInfo.pais}</p>
             </div>
             <div className="info-card">
-              <h3>⏰ Horário</h3>
+              <h3><FaClock /> Horário</h3>
               <div className="schedule-compact">
                 <p><strong>Seg-Sáb:</strong> {studioInfo.horario[0].horas}</p>
                 <p><strong>Domingo:</strong> {studioInfo.horario[6].horas}</p>
               </div>
             </div>
             <div className="info-card">
-              <h3>📞 Contacto</h3>
+              <h3><FaPhone /> Contacto</h3>
               <p><a href={`tel:${studioInfo.telefone.replace(/\s/g, '')}`}>{studioInfo.telefone}</a></p>
             </div>
           </div>
@@ -402,7 +403,7 @@ export default function Booking() {
                 <input
                   type="file"
                   id="file-upload"
-                  accept="image/png,image/jpeg,.png,.jpg,.jpeg"
+                  accept="image/png,image/jpeg,image/webp,.png,.jpg,.jpeg,.webp"
                   multiple
                   onChange={handleFileChange}
                   className="file-input"
@@ -415,7 +416,7 @@ export default function Booking() {
                         ? `${files.length} imagem(ns) selecionada(s)` 
                         : "Clique ou arraste imagens aqui"}
                     </span>
-                    <span className="upload-hint">Máximo 5 imagens (JPG, JPEG, PNG)</span>
+                    <span className="upload-hint">Máximo 5 imagens (JPG, JPEG, PNG, WebP)</span>
                   </div>
                 </label>
               </div>
