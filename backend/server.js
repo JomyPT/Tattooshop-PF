@@ -14,6 +14,10 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Servir arquivos estáticos (uploads e portfolio)
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use('/portfolio', express.static(path.join(__dirname, '../frontend/public/portfolio')));
+
 // Criar diretórios necessários
 const uploadsDir = path.join(__dirname, 'uploads');
 const agendamentosDir = path.join(uploadsDir, 'agendamentos');
@@ -91,54 +95,81 @@ const dbConfig = {
 };
 
 let dbPool;
+let dbConnected = false;
 
 async function initDatabase() {
-  dbPool = mysql.createPool({
-    ...dbConfig,
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0
-  });
+  const maxRetries = 3;
+  let retries = 0;
 
-  const createTableSql = `
-    CREATE TABLE IF NOT EXISTS agendamentos (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      nome VARCHAR(120) NOT NULL,
-      email VARCHAR(160) NOT NULL,
-      telefone VARCHAR(40),
-      data_agendamento DATE NOT NULL,
-      estilo VARCHAR(120) DEFAULT 'Não especificado',
-      localizacao VARCHAR(120) DEFAULT 'Não especificado',
-      tamanho VARCHAR(120) DEFAULT 'Não especificado',
-      horario_preferencial VARCHAR(120) DEFAULT 'Não especificado',
-      descricao TEXT,
-      imagens JSON,
-      data_criacao DATETIME NOT NULL,
-      status VARCHAR(30) DEFAULT 'pendente'
-    )
-  `;
+  while (retries < maxRetries) {
+    try {
+      dbPool = mysql.createPool({
+        ...dbConfig,
+        waitForConnections: true,
+        connectionLimit: 10,
+        queueLimit: 0
+      });
 
-  const createHistoricoTableSql = `
-    CREATE TABLE IF NOT EXISTS historico_atividades (
-      id INT AUTO_INCREMENT PRIMARY KEY,
-      agendamento_id INT,
-      nome_cliente VARCHAR(120) NOT NULL,
-      email_cliente VARCHAR(160),
-      acao VARCHAR(100) NOT NULL,
-      status_anterior VARCHAR(30),
-      status_novo VARCHAR(30),
-      observacao TEXT,
-      data_acao DATETIME NOT NULL,
-      INDEX idx_agendamento (agendamento_id)
-    )
-  `;
+      const createTableSql = `
+        CREATE TABLE IF NOT EXISTS agendamentos (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          nome VARCHAR(120) NOT NULL,
+          email VARCHAR(160) NOT NULL,
+          telefone VARCHAR(40),
+          data_agendamento DATE NOT NULL,
+          estilo VARCHAR(120) DEFAULT 'Não especificado',
+          localizacao VARCHAR(120) DEFAULT 'Não especificado',
+          tamanho VARCHAR(120) DEFAULT 'Não especificado',
+          horario_preferencial VARCHAR(120) DEFAULT 'Não especificado',
+          descricao TEXT,
+          imagens JSON,
+          data_criacao DATETIME NOT NULL,
+          status VARCHAR(30) DEFAULT 'pendente'
+        )
+      `;
 
-  await dbPool.execute(createTableSql);
-  await dbPool.execute(createHistoricoTableSql);
+      const createHistoricoTableSql = `
+        CREATE TABLE IF NOT EXISTS historico_atividades (
+          id INT AUTO_INCREMENT PRIMARY KEY,
+          agendamento_id INT,
+          nome_cliente VARCHAR(120) NOT NULL,
+          email_cliente VARCHAR(160),
+          acao VARCHAR(100) NOT NULL,
+          status_anterior VARCHAR(30),
+          status_novo VARCHAR(30),
+          observacao TEXT,
+          data_acao DATETIME NOT NULL,
+          INDEX idx_agendamento (agendamento_id)
+        )
+      `;
+
+      await dbPool.execute(createTableSql);
+      await dbPool.execute(createHistoricoTableSql);
+      
+      dbConnected = true;
+      console.log('✅ Base de dados conectada com sucesso');
+      return;
+    } catch (error) {
+      retries++;
+      console.warn(`⚠️  Tentativa ${retries} de conexão falhou:`, error.message);
+      
+      if (retries < maxRetries) {
+        console.log(`🔄 Tentando novamente em 2s...`);
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      } else {
+        console.error('❌ Base de dados indisponível após 3 tentativas');
+        console.log('⚡ O servidor continuará em modo offline (sem persistência)');
+        dbConnected = false;
+        // Não lançá erro - deixar o servidor correr sem DB
+      }
+    }
+  }
 }
 
 // Função auxiliar para registrar atividade
 async function registrarAtividade(agendamentoId, nomeCliente, emailCliente, acao, statusAnterior = null, statusNovo = null, observacao = null) {
+  if (!dbConnected) return; // Ignorar se DB não está disponível
+  
   const insertSql = `
     INSERT INTO historico_atividades (agendamento_id, nome_cliente, email_cliente, acao, status_anterior, status_novo, observacao, data_acao)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?)
@@ -509,23 +540,30 @@ app.get('/api/health', (req, res) => {
 // Iniciar servidor
 initDatabase()
   .then(() => {
-    app.listen(PORT, () => {
-      console.log(`🚀 Servidor rodando na porta ${PORT}`);
-      console.log(`📍 URL: http://localhost:${PORT}`);
-      console.log(`✅ API endpoints disponíveis:`);
-      console.log(`   GET    /api/health`);
-      console.log(`   GET    /api/artists`);
-      console.log(`   GET    /api/artists/:slug`);
-      console.log(`   POST   /api/agendamentos`);
-      console.log(`   GET    /api/agendamentos`);
-      console.log(`   GET    /api/agendamentos/:id`);
-      console.log(`   PATCH  /api/agendamentos/:id`);
-      console.log(`   DELETE /api/agendamentos/:id`);
-      console.log(`   GET    /api/historico`);
-      console.log(`   GET    /api/historico/:agendamentoId`);
-    });
+    startServer();
   })
   .catch((error) => {
     console.error('❌ Erro ao iniciar a base de dados:', error);
-    process.exit(1);
+    // Continuar mesmo sem DB - servidor em modo offline
+    console.log('⚡ Iniciando servidor em modo offline...');
+    startServer();
   });
+
+function startServer() {
+  app.listen(PORT, () => {
+    const dbStatus = dbConnected ? '✅ com BD' : '⚡ sem BD (offline)';
+    console.log(`🚀 Servidor rodando na porta ${PORT} ${dbStatus}`);
+    console.log(`📍 URL: http://localhost:${PORT}`);
+    console.log(`✅ API endpoints disponíveis:`);
+    console.log(`   GET    /api/health`);
+    console.log(`   GET    /api/artists`);
+    console.log(`   GET    /api/artists/:slug`);
+    console.log(`   POST   /api/agendamentos`);
+    console.log(`   GET    /api/agendamentos`);
+    console.log(`   GET    /api/agendamentos/:id`);
+    console.log(`   PATCH  /api/agendamentos/:id`);
+    console.log(`   DELETE /api/agendamentos/:id`);
+    console.log(`   GET    /api/historico`);
+    console.log(`   GET    /api/historico/:agendamentoId`);
+  });
+}
